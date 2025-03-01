@@ -41,7 +41,9 @@
 
     1 - Subir os conteiners com Docker Compose
 
-      *  docker-compose up -d --build
+      *  docker-compose build
+
+      *  docker-compose up
 
       - Isso iniciará os seguinte serviços.
 
