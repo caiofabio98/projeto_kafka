@@ -1,0 +1,61 @@
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.3.0
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+    ports:
+      - "2181:2181"
+
+  kafka:
+    image: confluentinc/cp-kafka:7.3.0
+    container_name: kafka
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
+      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://kafka:9092"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+    depends_on:
+      - zookeeper
+
+  cassandra:
+    image: cassandra:latest
+    container_name: cassandra
+    ports:
+      - "9042:9042"
+    healthcheck:
+      test: ["CMD", "cqlsh", "-e", "describe keyspaces"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+
+  producer:
+    build: ./producer
+    container_name: producer
+    depends_on:
+      kafka:
+        condition: service_started  # Aguarda o Kafka iniciar
+    environment:
+      - KAFKA_BROKER=kafka:9092
+    volumes:
+      - ./producer:/app
+
+  consumer:
+    build: ./consumer
+    container_name: consumer
+    depends_on:
+      kafka:
+        condition: service_started
+      cassandra:
+        condition: service_healthy  # Só inicia quando Cassandra estiver pronto
+    environment:
+      - KAFKA_BROKER=kafka:9092
+      - CASSANDRA_HOST=cassandra
+    volumes:
+      - ./consumer:/app
+
+volumes:
+  kafka-data: {}

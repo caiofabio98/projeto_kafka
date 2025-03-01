@@ -1,0 +1,45 @@
+--------------------------------------------------------------------------------------
+
+PROJETO KAFKA
+
+------------------------------------INICIANDO-----------------------------------------
+
+Rode os seguintes comandos:
+
+docker-compose build
+
+
+docker-compose up -d --build
+
+
+
+docke-compose up
+
+Um após o outro rodar.
+
+Para derrubar utilize:
+
+docker-compose down -v
+
+reiniciar producer e consumer:
+
+docker-compose restart producer consumer
+
+
+------------------------------------verificação de logs dos serviços-----------------------------------
+
+docker-compose logs -f kafka
+docker-compose logs -f consumer
+docker-compose logs -f cassandra
+
+
+------------------------------------gestão do cassandra---------------------------------------------
+
+
+verificar se o Cassandra está rodando
+
+docker ps -a
+
+verificação de logs 
+
+docker logs cassandra --tail 50
